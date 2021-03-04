@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <!-- 数据库驱动:选择本地数据库驱动包-->
+    <classPathEntry  location="/Users/zhang/Code/ideaJavawebLib/jdbc/mysql-connector-java-8.0.15.jar"/>
+    <context id="context1"  targetRuntime="MyBatis3">
+
+        <!--数据库链接URL，用户名、密码 -->
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+                        connectionURL="jdbc:mysql://127.0.0.1:3306/file?serverTimezone=GMT%2B8"
+                        userId="root" password="nishengri">
+        </jdbcConnection>
+
+        <!-- 生成实体bean的包名和位置-->
+        <javaModelGenerator targetPackage="com.simplefileserver.entity" targetProject="src/main/java">
+        </javaModelGenerator>
+        <!-- 生成映射xml文件的包名和位置-->
+        <sqlMapGenerator targetPackage="com.simplefileserver.mapper" targetProject="src/main/resources">
+        </sqlMapGenerator>
+        <!-- 生成Mapper的包名和位置-->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.simplefileserver.mapper" targetProject="src/main/java">
+        </javaClientGenerator>
+        <!-- 要生成的表 tableName是数据库中的表名或视图名 domainObjectName是实体类名-->
+<!--        <table tableName="file" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>-->
+<!--        <table tableName="request" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true" ></table>-->
+<!--        <table tableName="notice" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true" ></table>-->
+        <table tableName="remote" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true" ></table>
+    </context>
+</generatorConfiguration>

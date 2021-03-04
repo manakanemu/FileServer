@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>资源</title>
+    <!--    引入样式-->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!--    引入js库-->
+    <script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script>
+        function copy(str){
+            var cinput = document.createElement('input')
+            cinput.value = str
+            document.body.appendChild(cinput)
+            cinput.select();
+            document.execCommand("Copy");
+            document.body.removeChild(cinput)
+        }
+
+        function genLine(name, url, times) {
+            var line = $('<div class="body-line"></div>')
+            var link = $('<a target="_blank" href="' + url + '"></a>')
+            var namespan = $('<span class="filename"></span>')
+            var timesspan = $('<span class="downloadtimes"></span>')
+            namespan.text(name)
+            timesspan.text('下载次数:' + times)
+            link.append(namespan)
+            link.append(timesspan)
+            line.append(link)
+            return line
+        }
+
+        $(function () {
+            var table = new Vue({
+                el: '#app',
+                data: {
+                    tableData: null
+                },
+                methods: {
+                    openFile(row) {
+                        window.open(row.url)
+                    },
+                    notice(title, message, type = 'info') {
+                        const h = this.$createElement;
+                        this.$notify({
+                            title: title,
+                            message: message,
+                            type: type,
+                            duration: 0,
+                            dangerouslyUseHTMLString: true
+                        })
+                    }
+                }
+            })
+
+            $.get('/filelist', function (data) {
+                table.tableData = data
+            }, 'json')
+
+            $.get('/noticelist', function (data) {
+                var i = 0
+                var ser = setInterval(function () {
+                    table.notice(data[i].title,data[i].content,data[i].type)
+                    i++
+                    if(i >= data.length){
+                        clearInterval(ser)
+                    }
+                },1)
+            }, 'json')
+
+        })
+    </script>
+    <style>
+        html {
+            height: 100%;
+        }
+
+        html, body {
+            margin: 0px;
+            position: relative;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: start;
+            align-items: center;
+        }
+
+        #app {
+            width: 1140px;
+        }
+
+        #title-container {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: start;
+            align-items: center;
+            position: relative;
+        }
+
+
+        #title-logo {
+            height: 40px;
+            width: 40px;
+        }
+
+        #title-title {
+            margin: 0px 0px 0px 20px;
+            font-size: 22px;
+        }
+
+
+        #body-container {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: start;
+            align-items: center;
+        }
+        #pv-link{
+            margin-left: 50px;
+        }
+
+    </style>
+</head>
+<body>
+<el-container id="app">
+    <el-header id="title-container" height="80px">
+        <img id="title-logo" src="logo.png">
+        <span id="title-title">复试资料</span>
+        <a id="pv-link" target="_blank" href="/chart">网站访问量统计(PV)</a>
+    </el-header>
+    </div>
+    <div id="body-container">
+        <el-table :data="tableData" style="width: 100%">
+            <el-table-column prop="name" label="文件名" width="500" sortable>
+            </el-table-column>
+            <el-table-column prop="downloadTimes" label="下载次数" width="200" sortable>
+            </el-table-column>
+            <el-table-column>
+                <template slot-scope="scope">
+                    <el-button type="primary" size="mini" @click="openFile(scope.row)">下载</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+    </div>
+</el-container>
+</body>
+</html>

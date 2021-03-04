@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+    <script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js"></script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0px;
+        }
+
+        #app{
+            height: 100%;
+            width: 100%;
+            margin: 0px;
+            position: relative;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: center;
+            align-items: center;
+            background-image: url("https://manakanemu.oss-cn-beijing.aliyuncs.com/backGroundImg0.jpg ");
+            background-repeat: no-repeat;
+            background-size: 100% auto;
+        }
+        #login-container{
+            background-color: rgba(70,70,70,0.5);
+            border-radius: 10px;
+            height: 450px;
+            width: 480px;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: center;
+            align-items: center;
+
+        }
+        .linebox{
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: start;
+            align-items: center;
+            width: 320px;
+            height: 60px;
+        }
+        .login-input{
+            height: 40px;
+            width: 100%;
+            padding: 1px 15px 1px 15px;
+            box-sizing: border-box;
+            outline: none;
+            border-radius: 5px;
+            border-top: 0px;
+            border-left: 0px;
+            border-right: 0px;
+            border-bottom: 1px solid #e5e5e5;
+            background-color: transparent;
+            color: white;
+        }
+        .login-input::placeholder{
+            color: white;
+        }
+        .linebox>span{
+            font-size: 31px;
+            color: white;
+        }
+        form{
+            margin-top: 20px;
+        }
+        .button-box{
+            margin-top: 40px;
+        }
+        #submit-input{
+            background-color: cornflowerblue;
+            border: 0px;
+        }
+        #submit-input:hover{
+            background-color: #58e57b;
+        }
+
+
+    </style>
+    <script>
+        function login(event){
+            event.preventDefault()
+            $.get('/login',{
+                username:$("#username-input").val(),
+                password:$("#password-input").val()
+            },function(data){
+                if(data.status==1){
+                    window.location.href=data.msg;
+                }else {
+                    alert(data.msg)
+                }
+            },'json')
+            return false;
+        }
+    </script>
+</head>
+<body>
+<div id="app">
+    <div id="login-container">
+        <div class="linebox">
+            <span>登陆</span>
+        </div>
+        <form onsubmit="login(event)" >
+            <div class="linebox">
+                <input name="username" class="login-input" type="text" placeholder="请输入用户名" id="username-input">
+            </div>
+            <div class="linebox">
+                <input name="password" class="login-input" type="password" placeholder="请输入密码" id="password-input">
+            </div>
+            <div class="linebox button-box">
+                <input class="login-input" type="submit" id="submit-input">
+            </div>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

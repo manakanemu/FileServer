@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>chart</title>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/vue.js"></script>
+    <script src="https://cdn.staticfile.org/echarts/4.6.0/echarts.min.js"></script>
+    <script>
+        $(function () {
+            $.get("/requestStatistics", function (result) {
+                var dataAxis = new Array()
+                var data = new Array()
+                var dataShadow = [];
+                for (var i = 0; i < result.length; i++) {
+                    dataAxis.push(result[i].msg)
+                    data.push(result[i].status)
+                }
+                var yMax = Math.max(data);
+
+                console.log(dataAxis)
+                console.log(data)
+                for (var i = 0; i < data.length; i++) {
+                    dataShadow.push(yMax);
+                }
+                option = {
+                    title: {
+                        text: '资源访问统计'
+                    },
+                    xAxis: {
+                        data: dataAxis,
+                        // axisLabel: {
+                        //     inside: true,
+                        //     textStyle: {
+                        //         color: '#fff'
+                        //     }
+                        // },
+                        axisTick: {
+                            show: false
+                        },
+                        axisLine: {
+                            show: false
+                        },
+                        z: 10
+                    },
+                    yAxis: {
+                        axisLine: {
+                            show: false
+                        },
+                        axisTick: {
+                            show: false
+                        },
+                        axisLabel: {
+                            textStyle: {
+                                color: '#999'
+                            }
+                        }
+                    },
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        { // For shadow
+                            type: 'bar',
+                            itemStyle: {
+                                color: 'rgba(0,0,0,0.05)'
+                            },
+                            barGap: '-100%',
+                            barCategoryGap: '40%',
+                            data: dataShadow,
+                            animation: false
+                        },
+                        {
+                            type: 'bar',
+                            itemStyle: {
+                                color: new echarts.graphic.LinearGradient(
+                                    0, 0, 0, 1,
+                                    [
+                                        {offset: 0, color: '#83bff6'},
+                                        {offset: 0.5, color: '#188df0'},
+                                        {offset: 1, color: '#188df0'}
+                                    ]
+                                )
+                            },
+                            emphasis: {
+                                itemStyle: {
+                                    color: new echarts.graphic.LinearGradient(
+                                        0, 0, 0, 1,
+                                        [
+                                            {offset: 0, color: '#2378f7'},
+                                            {offset: 0.7, color: '#2378f7'},
+                                            {offset: 1, color: '#83bff6'}
+                                        ]
+                                    )
+                                }
+                            },
+                            data: data
+                        }
+                    ]
+                };
+                var myChart = echarts.init(document.getElementById('app'));
+                myChart.setOption(option);
+
+                var zoomSize = 6;
+                myChart.on('click', function (params) {
+                    console.log(dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)],
+                        endValue: dataAxis[Math.min(params.dataIndex + zoomSize / 2, data.length - 1)]
+                    });
+                });
+
+            }, 'json')
+        })
+    </script>
+    <style>
+        html,body{
+            height: 100%;
+        }
+        #app{
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="app"></div>
+
+</body>
+</html>

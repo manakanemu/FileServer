@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>控制台</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        #table {
+            margin-top: 20px;
+            border: 0px;
+            width: 100%;
+            height: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-line {
+            border-bottom: 1px solid gray;
+            height: 60px;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0px;
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: start;
+            align-items: center;
+        }
+
+        .line-filename {
+            min-width: 400px;
+        }
+
+        .line-time {
+            min-width: 400px;
+        }
+
+        .line-ip {
+            min-width: 300px;
+        }
+    </style>
+    <script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script>
+        function getFileList(v) {
+            $.get('fullfilelist', function (data) {
+                v.fileData = data
+            }, 'json')
+        }
+
+        function getRequestList(v) {
+            $.get('requestList', function (data) {
+                v.requestData = data
+                v.itemSize = data.length
+                v.requestTableData = v.requestData.slice((v.currentPage - 1) * v.pageSize, v.currentPage * v.pageSize)
+            }, 'json')
+        }
+
+        $(function () {
+            var v = new Vue({
+                el: '#app',
+                data: {
+                    fileData: null,
+                    requestData: null,
+                    requestTableData: null,
+                    selectedFile: '',
+                    itemSize: 0,
+                    pageSize: 10,
+                    currentPage: 1,
+                    remote: {
+                        filename: '',
+                        url: ''
+                    }
+                },
+                methods: {
+                    uploadSuccess() {
+                        getFileList(this)
+                    },
+                    selectFile(row, column, event) {
+                        this.selectedFile = row.filename
+                    },
+                    deleteFile() {
+                        var v = this
+                        $.get('/deletefile', {
+                            name: this.selectedFile
+                        }, function () {
+                            v.selectedFile = ""
+                            getFileList(v)
+                        })
+                    },
+                    changePage(page) {
+                        this.requestTableData = this.requestData.slice((page - 1) * this.pageSize, page * this.pageSize)
+                    },
+                    addRemoteFile() {
+                        var v = this
+                        $.get('/addRemoteFile',
+                            {
+                                filename: v.remote.filename,
+                                url: v.remote.url
+                            },
+                            function () {
+                                v.remote.filename = ''
+                                v.remote.url = ''
+                                getFileList(v)
+                            })
+                    }
+                }
+            })
+
+            getFileList(v)
+            getRequestList(v)
+        })
+    </script>
+
+
+</head>
+<body>
+<!--<form action="/uploadFile" method="post" enctype="multipart/form-data">-->
+<!--    <input type="file" name="file">-->
+<!--    <input type="submit" value="上传文件">-->
+<!--</form>-->
+<div id="app">
+    <el-form :inline="true" class="demo-form-inline delete-form">
+        <el-form-item>
+            <el-upload action="/uploadFile" :on-success="uploadSuccess" multiple>
+                <el-button size="small" type="primary">点击上传</el-button>
+            </el-upload>
+        </el-form-item>
+    </el-form>
+
+    <el-form :inline="true" class="demo-form-inline delete-form">
+        <el-form-item>
+            <el-input placeholder="文件名" v-model:value="remote.filename" style="width:500px;"></el-input>
+        </el-form-item>
+        <el-form-item>
+            <el-input placeholder="地址" v-model:value="remote.url"  style="width:300px;"></el-input>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" @click="addRemoteFile">添加远程文件</el-button>
+        </el-form-item>
+    </el-form>
+
+    <!--    <el-form :inline="true" class="demo-form-inline delete-form">-->
+    <!--        <el-form-item label="文件名">-->
+    <!--            <el-input placeholder="文件名" style="width: 300px;"  v-model:value="remote.filename"></el-input>-->
+    <!--        </el-form-item>-->
+    <!--        <el-form-item label="文件路径">-->
+    <!--            <el-input placeholder="URL" style="width: 500px;"  v-model:value="remote.url"></el-input>-->
+    <!--        </el-form-item>-->
+    <!--        <el-form-item>-->
+    <!--            <el-button type="primary" @click="addRemoteFile">添加远程文件</el-button>-->
+    <!--        </el-form-item>-->
+    <!--    </el-form>-->
+
+    <el-form :inline="true" class="demo-form-inline delete-form">
+        <el-form-item>
+            <el-input placeholder="选择文件" style="width: 500px;" readonly v-model:value="selectedFile"></el-input>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" @click="deleteFile">删除文件</el-button>
+        </el-form-item>
+    </el-form>
+    <a target="_blank" href="notice">消息管理</a>
+    <a target="_blank" href="chart">统计信息</a>
+
+    <el-table :data="fileData" style="width: 100%" @row-click="selectFile">
+        <el-table-column prop="filename" label="文件名" width="550" sortable></el-table-column>
+        <el-table-column prop="time" label="上传时间" sortable></el-table-column>
+    </el-table>
+
+    <hr style="width: 100%;margin: 20px 0px 20px 0px;border: 2px solid black">
+
+    <el-table :data="requestTableData" style="min-height:540px;width: 100%" @row-click="selectFile">
+        <el-table-column prop="filename" label="文件名" width="550" sortable></el-table-column>
+        <el-table-column prop="ip" label="访问IP" width="200" sortable></el-table-column>
+        <el-table-column prop="time" label="访问时间" sortable></el-table-column>
+    </el-table>
+    <el-pagination
+            style="margin: 20px 0px 50px 0px;"
+            @current-change="changePage"
+            background
+            layout="prev, pager, next"
+            :current-page="currentPage"
+            :total="itemSize"
+            :size="pageSize">
+    </el-pagination>
+</div>
+</body>
+</html>
