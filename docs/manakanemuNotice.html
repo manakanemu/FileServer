@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>公告</title>
+    <!--    引入样式-->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style>
+        html, body {
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .add-form {
+            margin: 20px 0px 0px 20px;
+        }
+
+        .delete-form {
+            margin: 0px 0px 20px 20px;
+        }
+        #delete-number{
+            width: 300px;
+        }
+
+    </style>
+    <!--    引入js库-->
+    <script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+
+</head>
+<body>
+<div id="app">
+    <el-form :inline="true" :model="addData" class="demo-form-inline add-form">
+        <el-form-item label="标题">
+            <el-input v-model="addData.title" placeholder="标题"></el-input>
+        </el-form-item>
+        <el-form-item label="内容">
+            <el-input style="width: 350px"type="textarea"  autosize v-model="addData.content" placeholder="内容"></el-input>
+        </el-form-item>
+        <el-form-item label="类型">
+            <el-select v-model="addData.type" placeholder="n">
+                <el-option label="info" value="info"></el-option>
+                <el-option label="success" value="success"></el-option>
+                <el-option label="warning" value="warning"></el-option>
+                <el-option label="error" value="error"></el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item label="权重">
+            <el-select v-model="addData.level" placeholder="n">
+                <el-option label="1" value="1"></el-option>
+                <el-option label="2" value="2"></el-option>
+                <el-option label="3" value="3"></el-option>
+                <el-option label="4" value="4"></el-option>
+                <el-option label="5" value="5"></el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" @click="addNotice">添加公告</el-button>
+        </el-form-item>
+    </el-form>
+
+    <el-form :inline="true" :model="deleteData" class="demo-form-inline delete-form">
+        <el-form-item label="通知序列号">
+            <el-input v-model="deleteData.number" placeholder="序列号" size="large" id="delete-number"></el-input>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" @click="deleteNotice">删除公告</el-button>
+        </el-form-item>
+    </el-form>
+
+    <el-table :data="tableData" style="width: 100%" @row-click="selectRow">
+        <el-table-column prop="number" label="序列号" width="300" sortable></el-table-column>
+        <el-table-column prop="title" label="标题" width="300" sortable></el-table-column>
+        <el-table-column prop="content" label="内容" width="600" sortable></el-table-column>
+        <el-table-column prop="type" label="类型" sortable></el-table-column>
+        <el-table-column prop="level" label="级别" sortable></el-table-column>
+    </el-table>
+
+</div>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            addData: {
+                title: '',
+                content: '',
+                type: 'info',
+                level:1
+            },
+            deleteData: {
+                number: ''
+            },
+            tableData: null
+        },
+        methods: {
+            addNotice() {
+                $.get('addNotice',
+                    {
+                        title: this.addData.title,
+                        content: this.addData.content,
+                        type: this.addData.type,
+                        level:this.addData.level
+                    },
+                    function (data) {
+                        app.tableData = data
+                    }, 'json')
+            },
+            deleteNotice() {
+                $.get('deleteNotice',{
+                    number:this.deleteData.number
+                },function (data) {
+                    app.tableData = data
+                    app.deleteData.number = ''
+                },'json')
+            },
+            selectRow(row, column, event) {
+                this.deleteData.number = row.number
+            }
+        }
+    })
+
+    $.get('getNotice', function (data) {
+        app.tableData = data
+        console.log(typeof (data))
+    }, 'json')
+
+</script>
+</body>
+</html>
